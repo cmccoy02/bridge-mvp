@@ -112,9 +112,8 @@ class RepoAnalyzer:
         """Get repository metadata."""
         try:
             # Get the latest commit
-            for commit in repo.get_commits():
-                last_commit = commit.commit.author.date
-                break
+            commits = list(repo.get_commits(per_page=1))
+            last_commit = commits[0].commit.author.date if commits else None
         except Exception:
             last_commit = None
         
