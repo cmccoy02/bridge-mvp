@@ -1,0 +1,31 @@
+[project]
+name = "bridge-cli"
+version = "0.1.0"
+description = "A CLI tool to analyze technical debt in GitHub repositories"
+authors = []
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "click>=8.1.7",
+    "radon>=6.0.1",
+    "rich>=13.7.0",
+    "pygithub>=2.1.1",
+    "coverage>=7.4.1",
+    "bandit>=1.7.7",
+    "python-dotenv>=1.0.0",
+    "gitpython>=3.1.41"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.optional-dependencies]
+test = ["pytest>=7.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+
+[project.scripts]
+bridge = "bridge_cli.cli:cli" 
