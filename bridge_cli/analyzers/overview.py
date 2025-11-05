@@ -129,6 +129,28 @@ def _local_language_bytes(path: str) -> Dict[str, int]:
     return totals
 
 
+def total_lines_of_code(path: str) -> int:
+    """Count total lines across source files recognized by _EXT_TO_LANG.
+
+    This counts physical lines; it does not attempt to filter comments/blank lines.
+    """
+    total = 0
+    for root, dirs, files in os.walk(path):
+        dirs[:] = [d for d in dirs if d not in _IGNORE_DIRS]
+        for fname in files:
+            ext = os.path.splitext(fname)[1].lower()
+            if ext not in _EXT_TO_LANG:
+                continue
+            fp = os.path.join(root, fname)
+            try:
+                with open(fp, "r", encoding="utf-8", errors="ignore") as f:
+                    for _ in f:
+                        total += 1
+            except OSError:
+                continue
+    return total
+
+
 def _github_language_bytes(full_name: str, token: Optional[str]) -> Optional[Dict[str, int]]:
     if requests is None:
         return None

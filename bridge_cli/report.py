@@ -21,6 +21,7 @@ def generate_report(repo_name: str, metrics: dict) -> str:
     complexity_metrics = metrics.get("complexity", {})
     duplication_metrics = metrics.get("duplication", {})
     security_metrics = metrics.get("security", {})
+    health_metrics = metrics.get("health", {})
 
     report = {
         "repo_name": repo_name,
@@ -28,11 +29,16 @@ def generate_report(repo_name: str, metrics: dict) -> str:
         "metrics": {
             "complexity": {
                 "average": complexity_metrics.get("average_complexity", 0.0),
+                "p90": complexity_metrics.get("p90_complexity", 0.0),
                 "top_complex_functions": complexity_metrics.get("top_complex_functions", [])
             },
             "churn": {
                 "weekly_avg_commits": weekly_avg_commits,
-                "recent_churned_files": churn_metrics.get("recent_churned_files", [])
+                "recent_churned_files": churn_metrics.get("recent_churned_files", []),
+                "weekly_commits": churn_metrics.get("weekly_commits", []),
+                "top_churned_files": churn_metrics.get("top_churned_files", []),
+                "top_churned_dirs": churn_metrics.get("top_churned_dirs", []),
+                "authors_count": churn_metrics.get("authors_count", 0),
             },
             "duplication": {
                 "percentage": duplication_metrics.get("duplication_percentage", 0.0),
@@ -41,6 +47,12 @@ def generate_report(repo_name: str, metrics: dict) -> str:
             "security": {
                 "issues_by_severity": security_metrics.get("issues_by_severity", {}),
                 "detailed_issues": security_metrics.get("detailed_issues", [])
+            },
+            "health": {
+                "contributors": health_metrics.get("contributors", 0),
+                "bus_factor": health_metrics.get("bus_factor", 0),
+                "top_authors": health_metrics.get("top_authors", []),
+                "release_cadence": health_metrics.get("release_cadence", {}),
             },
         },
     }

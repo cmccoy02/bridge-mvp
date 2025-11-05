@@ -19,8 +19,11 @@ from bridge_cli.analyzers.overview import (
     get_age_days_and_total_commits,
     language_breakdown,
     fetch_open_issues,
+    total_lines_of_code,
 )
+from bridge_cli.analyzers.health import analyze_health
 from bridge_cli.ascii_art import LOGO
+import uvicorn
 
 @click.group(invoke_without_command=True)
 @click.version_option()
@@ -64,12 +67,14 @@ def analyze(repo_url: str, output: Optional[str] = None):
             churn_metrics = analyze_churn(repo_path)
             duplication_metrics = analyze_duplication(repo_path)
             security_metrics = analyze_security(repo_path)
+            health_metrics = analyze_health(repo_path)
 
             metrics = {
                 "complexity": complexity_metrics,
                 "churn": churn_metrics,
                 "duplication": duplication_metrics,
                 "security": security_metrics,
+                "health": health_metrics,
             }
 
             # Overview
@@ -77,6 +82,7 @@ def analyze(repo_url: str, output: Optional[str] = None):
             age_days, total_commits = get_age_days_and_total_commits(repo_path)
             lang_pct = language_breakdown(repo_path, repo_url)
             open_issues = fetch_open_issues(repo_url)
+            loc = total_lines_of_code(repo_path)
 
             # Optional JSON output file
             if output:
@@ -107,6 +113,9 @@ def analyze(repo_url: str, output: Optional[str] = None):
             else:
                 table.add_row("language breakdown:", "N/A")
 
+            # Size (lines of code)
+            table.add_row("size:", f"{loc} lines of code")
+
             # Open issues
             table.add_row("open issues:", str(open_issues) if open_issues is not None else "N/A")
 
@@ -116,14 +125,37 @@ def analyze(repo_url: str, output: Optional[str] = None):
             # Churn (last 30d)
             churn_desc = f"{churn_metrics.get('total_commits', 0)} commits, {churn_metrics.get('total_files_changed', 0)} files"
             table.add_row("churn (30d):", churn_desc)
+            trend = churn_metrics.get("weekly_commits", [])
+            if trend:
+                last = trend[-6:]
+                spark = ", ".join(str(w.get("commits", 0)) for w in last)
+                table.add_row("churn trend:", spark)
 
             # Complexity
             avg_cx = complexity_metrics.get("average_complexity", 0.0)
-            table.add_row("complexity:", f"avg {avg_cx}")
+            p90_cx = complexity_metrics.get("p90_complexity", 0.0)
+            table.add_row("complexity:", f"avg {avg_cx}, p90 {p90_cx}")
+
+            # Health KPIs
+            table.add_row("contributors:", str(health_metrics.get("contributors", 0)))
+            table.add_row("bus factor:", str(health_metrics.get("bus_factor", 0)))
+            rc = health_metrics.get("release_cadence", {})
+            table.add_row("releases/yr:", str(rc.get("releases_last_year", 0)))
 
             panel = Panel(table, title=f"BRIDGE OVERVIEW • {repo_name}", border_style="#FF4F00")
             console.print(panel)
 
+    except Exception as e:
+        raise click.ClickException(str(e))
+
+
+@cli.command()
+@click.option('--host', default='127.0.0.1', help='Host to bind')
+@click.option('--port', default=8000, type=int, help='Port to bind')
+def web(host: str, port: int):
+    """Run the Bridge web server (FastAPI) and open the dashboard."""
+    try:
+        uvicorn.run("bridge_cli.server:app", host=host, port=port, reload=False, log_level="info")
     except Exception as e:
         raise click.ClickException(str(e))
 

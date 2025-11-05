@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bridge Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  </head>
+  <body class="bg-gray-50 text-gray-900">
+    <div class="max-w-6xl mx-auto p-6">
+      <h1 class="text-3xl font-extrabold tracking-tight text-orange-600">BRIDGE</h1>
+      <p class="text-sm text-gray-600 mb-6">Technical debt insights</p>
+
+      <form id="analyze-form" class="flex gap-2 mb-6">
+        <input id="repo" type="text" placeholder="owner/repo or local path or URL" class="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500" />
+        <button class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg">Analyze</button>
+      </form>
+
+      <div id="error" class="hidden mb-4 p-3 rounded bg-red-50 text-red-700 text-sm"></div>
+
+      <div id="summary" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6"></div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white shadow rounded-lg p-4">
+          <h2 class="font-semibold mb-2">Language breakdown</h2>
+          <ul id="languages" class="text-sm space-y-1"></ul>
+        </div>
+        <div class="bg-white shadow rounded-lg p-4">
+          <h2 class="font-semibold mb-2">Weekly commits (recent)</h2>
+          <canvas id="commitsChart" height="120"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+  </html>
+
+

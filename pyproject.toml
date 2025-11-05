@@ -14,7 +14,9 @@ dependencies = [
     "bandit",
     "python-dotenv",
     "pyfiglet",
-    "GitPython"
+    "GitPython",
+    "fastapi",
+    "uvicorn"
 ]
 
 [build-system]
