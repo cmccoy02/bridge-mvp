@@ -6,14 +6,15 @@ authors = []
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
-    "click>=8.1.7",
-    "radon>=6.0.1",
-    "rich>=13.7.0",
-    "pygithub>=2.1.1",
-    "coverage>=7.4.1",
-    "bandit>=1.7.7",
-    "python-dotenv>=1.0.0",
-    "gitpython>=3.1.41"
+    "click",
+    "typer",
+    "rich",
+    "requests",
+    "radon",
+    "bandit",
+    "python-dotenv",
+    "pyfiglet",
+    "GitPython"
 ]
 
 [build-system]

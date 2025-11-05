@@ -1,7 +1,8 @@
-"""Calculates code churn."""
+"""Calculates code churn using Git history when available."""
 
 import datetime
-from git import Repo, GitCommandError
+from git import Repo
+from git.exc import InvalidGitRepositoryError, NoSuchPathError
 
 def analyze_churn(path: str, days: int = 30) -> dict:
     """
@@ -16,7 +17,8 @@ def analyze_churn(path: str, days: int = 30) -> dict:
     """
     try:
         repo = Repo(path)
-    except GitCommandError:
+    except (InvalidGitRepositoryError, NoSuchPathError):
+        # Not a git repo or path invalid: return zeros so other analyzers can still run
         return {
             "total_commits": 0,
             "total_files_changed": 0,
@@ -25,7 +27,8 @@ def analyze_churn(path: str, days: int = 30) -> dict:
 
     since_date = datetime.datetime.now() - datetime.timedelta(days=days)
 
-    commits = list(repo.iter_commits(rev=repo.head, since=since_date.isoformat()))
+    # Use HEAD explicitly; since accepts ISO8601 string
+    commits = list(repo.iter_commits('HEAD', since=since_date.isoformat()))
     
     total_commits = len(commits)
     changed_files = set()
